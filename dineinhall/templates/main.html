@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block content %}
+	<h1>Welcome to DineIn Hall!</h1>
+	<div>
+		<article class="media content-section">
+		  <div class="media-body">
+		    <div class="article-metadata">
+		    	You walk in to a Northeastern Dining Hall and see a few food options. You think to yourself, "Why does Northeastern's Dining Hall Suck?". But then you realize, Northeastern actually has over 1500 food items! How is it possible that from all of these items we can't find the food that we like? Because you didn't know about all the options.
+		    	<br><br>
+		    	Introducing DineIn Hall! The ONLY website that allows you to customize your limitless food options at Aoun's empire—ahem, I mean—Northeastern University. We help you discover a tailored food experience just for you. Use our advanced Search Features to find custom meal plan recommendations just for you! Calories, protein, vitamins, just pick and choose.
+				<br><br>
+		    	View the top rated foods and make an informed decision about your meals.
+		    </div>
+		  </div>
+		</article>
+	</div>
+{% endblock content %}
+{% block sidebar %}
+	<div class="col-md-4">
+      <div class="content-section">
+        <h3>Dining Hall Hours</h3>
+        <p class='text-muted'>
+          <ul class="list-group">
+            <li class="list-group-item list-group-item-dark"><b>International Village</b></li>
+            <li class="list-group-item list-group-item-light">M-Th: 7am-10pm</li>
+            <li class="list-group-item list-group-item-light">Friday: 7am-9pm</li>
+            <li class="list-group-item list-group-item-light">Weekends: 8am-9pm</li>
+          </ul>
+          <br>
+          <ul class="list-group">
+            <li class="list-group-item list-group-item-dark"><b>Stetson East</b></li>
+            <li class="list-group-item list-group-item-light">M-Th: 7am-11pm</li>
+            <li class="list-group-item list-group-item-light">Friday: 7am-10pm</li>
+            <li class="list-group-item list-group-item-light">Weekends: 8am-10pm</li>
+          </ul>
+          <br>
+          <ul class="list-group">
+            <li class="list-group-item list-group-item-dark"><b>Stetson West</b></li>
+            <li class="list-group-item list-group-item-light">M-Th: 11am-8pm</li>
+            <li class="list-group-item list-group-item-light">Friday: 11am-5pm</li>
+            <li class="list-group-item list-group-item-light">Saturday: Closed</li>
+            <li class="list-group-item list-group-item-light">Sunday: 4pm-8pm</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+{% endblock %}
