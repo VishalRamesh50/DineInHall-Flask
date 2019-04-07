@@ -7,4 +7,3 @@ Pillow
 flask-mail
 pymysql
 gunicorn
-app.py
