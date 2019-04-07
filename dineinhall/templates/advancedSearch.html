@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+{% block content %}
+	<h1>Advanced Search</h1>
+	{% for food in allFoods %}
+		<article class="media content-section">
+		  <div class="media-body">
+		    <div class="article-metadata">
+		      <b><u>{{ food.food_name}}</u></b>
+		      {% if food.location == 'Steast' %}
+		      	<b>(SE)</b>
+		      {% elif food.location == 'Stwest' %}
+		      	<b>(SW)</b>
+		      {% else %}
+		      	<b>({{food.location}})</b>
+		      {% endif %}
+		      <br>
+		      {{ "Calories: "}}
+		      {{ food.calories }} |
+		      {{ "Protein: "}}
+		      {{ food.protein }} |
+		      {{ "Carbs: "}}
+		      {{ food.total_carbs }} |
+		      {{ "Fat: "}}
+		      {{ food.total_fat }}
+		    </div>
+		  </div>
+		</article>
+	{% endfor %}
+{% endblock content %}
+{% block sidebar %}
+	<div class="col-md-4">
+      <div class="content-section">
+        <h3>Search</h3>
+        <p class='text-muted'>Choose your maximum nutritional preferences.
+          <ul class="list-group">
+          	<form method="POST" action="">
+				{{ form.hidden_tag() }}
+				<fieldset class="form-group">
+					<legend class="border-bottom mb-4"></legend>
+					<div class="form-check">
+						{{ form.iv(class="form-check-input") }}
+						{{ form.iv.label(class="form-check-label") }}
+					</div>
+					<div class="form-check">
+						{{ form.steast(class="form-check-input") }}
+						{{ form.steast.label(class="form-check-label") }}
+					</div>
+					<div class="form-check">
+						{{ form.stwest(class="form-check-input") }}
+						{{ form.stwest.label(class="form-check-label") }}
+					</div>
+					<br>
+					<div class="form-group">
+						{{ form.calories.label(class="form-control-label") }}
+						{% if form.calories.errors %}
+							{{ form.calories(class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback">
+								{% for error in form.calories.errors %}
+									<span>{{ error }}</span>
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.calories(class="form-control form-control") }}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						{{ form.protein.label(class="form-control-label") }}
+						{% if form.protein.errors %}
+							{{ form.protein(class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback">
+								{% for error in form.protein.errors %}
+									<span>{{ error }}</span>
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.protein(class="form-control form-control") }}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						{{ form.fat.label(class="form-control-label") }}
+						{% if form.fat.errors %}
+							{{ form.fat(class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback">
+								{% for error in form.fat.errors %}
+									<span>{{ error }}</span>
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.fat(class="form-control form-control") }}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						{{ form.carbs.label(class="form-control-label") }}
+						{% if form.carbs.errors %}
+							{{ form.carbs(class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback">
+								{% for error in form.carbs.errors %}
+									<span>{{ error }}</span>
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.carbs(class="form-control form-control") }}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						{{ form.meal.label(class="form-control-label") }}
+						{% if form.meal.errors %}
+							{{ form.meal(class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback">
+								{% for error in form.meal.errors %}
+									<span>{{ error }}</span>
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.meal(class="form-control form-control") }}
+						{% endif %}
+					</div>
+				</fieldset>
+				<div class="form-group">
+					{{ form.submit(class="btn btn-outline-info") }}
+				</div>
+			</form>
+          </ul>
+        </p>
+      </div>
+    </div>
+{% endblock %}
