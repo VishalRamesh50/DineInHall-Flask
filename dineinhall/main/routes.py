@@ -54,7 +54,11 @@ def search():
         foodNameQuery = "true "
         for word in foodName:
             foodNameQuery += f"and food_name like '%%{word}%%' "
-
+        # if user does not choose any location, shows all by default
+        if not(iv or steast or stwest):
+            iv = True
+            steast = True
+            stwest = True
         iv = "location like 'IV'" if iv else False
         steast = "location like 'Steast'" if steast else False
         stwest = "location like 'Stwest'" if stwest else False
@@ -68,11 +72,11 @@ def search():
             foods = con.execute('select distinct * '
                 + "from menu join food_on_menu using (menu_id) "
                 + "join food using (food_id) where menu_date = '{}' ".format(curdate)
-                + "and ({} or {} or {}) ".format(iv, steast, stwest)
+                + "and ({} or {} or {})  ".format(iv, steast, stwest)
                 + "and {} and {} and {} and {} ".format(calories, protein, fat, carbs)
                 + "and meal_type like '{}' ".format(meal)
                 + "and {}".format(foodNameQuery)
-                + "order by location desc, meal_type asc, calories desc")
+                + "order by location desc, meal_type asc, calories desc, food_name desc")
         foods = list(foods)
         size = len(foods)
         if size==0:
