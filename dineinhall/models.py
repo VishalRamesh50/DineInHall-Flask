@@ -54,6 +54,6 @@ class Menu(db.Model):
     menu_date = db.Column(db.DateTime, nullable=True)
 
 class FoodOnMenu(db.Model):
-    # id = db.Column(db.Integer, primary_key=True)
+    # compound primary keys
     food_id = db.Column(db.Integer, db.ForeignKey('menu.menu_id'), primary_key=True, nullable=False)
     menu_id = db.Column(db.Integer, db.ForeignKey('food.food_id'), primary_key=True, nullable=False)

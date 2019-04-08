@@ -1,6 +1,8 @@
 from flask import render_template, request, Blueprint, redirect, url_for, flash
 from sqlalchemy.sql import text
 from sqlalchemy import create_engine
+from datetime import datetime
+from pytz import timezone
 import os
 try:
     SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]  # TOKEN from Heroku
@@ -19,8 +21,6 @@ def mainPage():
 
 @main.route("/menu")
 def home():
-    # page = request.args.get('page', 1, type=int)
-    # posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return redirect(url_for('main.filteredLocations', loc='IV'))
 
 @main.route("/menu/<loc>")
@@ -50,8 +50,11 @@ def search():
         fat = form.fat.data
         carbs = form.carbs.data
         meal = form.meal.data
-        # flashMsg = str(iv) + ' ' + str(steast) + ' ' + str(stwest) + ' ' + str(calories) + ' ' + str(protein)
-        # flash(flashMsg, 'success')
+        foodName = form.foodName.data.split()
+        foodNameQuery = "true "
+        for word in foodName:
+            foodNameQuery += f"and food_name like '%%{word}%%' "
+
         iv = "location like 'IV'" if iv else False
         steast = "location like 'Steast'" if steast else False
         stwest = "location like 'Stwest'" if stwest else False
@@ -59,14 +62,16 @@ def search():
         protein = "protein <= {}".format(protein) if protein != None else True
         fat = "total_fat <= {}".format(fat) if fat != None else True
         carbs = "total_carbs <= {}".format(carbs) if carbs != None else True
-        
+        curdate = datetime.now(timezone('US/Eastern'))  # EST timezone
+        curdate = curdate.strftime("%Y-%m-%d")
         with engine.connect() as con:
-            foods = con.execute('select distinct food_name, calories, protein, total_fat, total_carbs, location, meal_type '
-                + 'from menu join food_on_menu using (menu_id) '
-                + ' join food using (food_id) where menu_date '
-                + "= curdate() and ({} or {} or {}) ".format(iv, steast, stwest)
+            foods = con.execute('select distinct * '
+                + "from menu join food_on_menu using (menu_id) "
+                + "join food using (food_id) where menu_date = '{}' ".format(curdate)
+                + "and ({} or {} or {}) ".format(iv, steast, stwest)
                 + "and {} and {} and {} and {} ".format(calories, protein, fat, carbs)
                 + "and meal_type like '{}' ".format(meal)
+                + "and {}".format(foodNameQuery)
                 + "order by location desc, meal_type asc, calories desc")
         foods = list(foods)
         size = len(foods)

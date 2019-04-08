@@ -21,7 +21,9 @@
 		      {{ "Carbs: "}}
 		      {{ food.total_carbs }} |
 		      {{ "Fat: "}}
-		      {{ food.total_fat }}
+		      {{ food.total_fat }} |
+		      {{ "Portions: "}}
+		      {{ food.serving }}
 		    </div>
 		  </div>
 		</article>
@@ -50,6 +52,23 @@
 						{{ form.stwest.label(class="form-check-label") }}
 					</div>
 					<br>
+					<div class="form-group">
+						{{ form.meal.label(class="form-control-label") }}
+						{{ form.meal(class="form-control form-control") }}
+					</div>
+					<div class="form-group">
+						{{ form.foodName.label(class="form-control-label") }}
+						{% if form.foodName.errors %}
+							{{ form.foodName(class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback">
+								{% for error in form.foodName.errors %}
+									<span>{{ error }}</span>
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.foodName(class="form-control form-control") }}
+						{% endif %}
+					</div>
 					<div class="form-group">
 						{{ form.calories.label(class="form-control-label") }}
 						{% if form.calories.errors %}
@@ -100,19 +119,6 @@
 							</div>
 						{% else %}
 							{{ form.carbs(class="form-control form-control") }}
-						{% endif %}
-					</div>
-					<div class="form-group">
-						{{ form.meal.label(class="form-control-label") }}
-						{% if form.meal.errors %}
-							{{ form.meal(class="form-control form-control-lg is-invalid") }}
-							<div class="invalid-feedback">
-								{% for error in form.meal.errors %}
-									<span>{{ error }}</span>
-								{% endfor %}
-							</div>
-						{% else %}
-							{{ form.meal(class="form-control form-control") }}
 						{% endif %}
 					</div>
 				</fieldset>
