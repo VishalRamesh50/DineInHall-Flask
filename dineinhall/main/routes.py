@@ -26,7 +26,7 @@ def home():
 @main.route("/menu/<loc>")
 def filteredLocations(loc):
     with engine.connect() as con:
-        rs = con.execute('select distinct food_name, calories, protein, total_fat, total_carbs, meal_type '
+        rs = con.execute('select distinct * '
             + 'from menu join food_on_menu using (menu_id) '
             + ' join food using (food_id) where menu_date '
             + "= curdate() and location like '{}'".format(loc))
