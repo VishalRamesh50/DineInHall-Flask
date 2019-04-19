@@ -15,12 +15,12 @@
 		      {% else %}
 		      	<b>({{food.location}})</b>
 		      {% endif %}
-		      <span style="float:right;">
+		      <span style="float:right">
 		      	<a href="{{ url_for('review.newReview', food_id=food.food_id) }}" class="btn btn-primary" role="button">
 		      		New Review
 		      	</a>
 		      </span>
-		      	|
+			  </br>
 		      	<i>
 	    		{% set starCount = food.ratings %}
 	    		{% if starCount != None %}
@@ -94,7 +94,7 @@
 						{{ form.meal(class="form-control form-control") }}
 					</div>
 					<div class="form-group">
-						{{ form.calories.label(class="form-control-label") }}
+						{{ form.calories.label(class="form-control-label") }} <i><small>(max.)</small></i>
 						{% if form.calories.errors %}
 							{{ form.calories(class="form-control form-control-lg is-invalid") }}
 							<div class="invalid-feedback">
@@ -107,7 +107,7 @@
 						{% endif %}
 					</div>
 					<div class="form-group">
-						{{ form.protein.label(class="form-control-label") }}
+						{{ form.protein.label(class="form-control-label") }} <i><small>(min.)</small></i>
 						{% if form.protein.errors %}
 							{{ form.protein(class="form-control form-control-lg is-invalid") }}
 							<div class="invalid-feedback">
@@ -120,7 +120,7 @@
 						{% endif %}
 					</div>
 					<div class="form-group">
-						{{ form.fat.label(class="form-control-label") }}
+						{{ form.fat.label(class="form-control-label") }} <i><small>(max.)</small></i>
 						{% if form.fat.errors %}
 							{{ form.fat(class="form-control form-control-lg is-invalid") }}
 							<div class="invalid-feedback">
@@ -133,7 +133,7 @@
 						{% endif %}
 					</div>
 					<div class="form-group">
-						{{ form.carbs.label(class="form-control-label") }}
+						{{ form.carbs.label(class="form-control-label") }} <i><small>(max.)</small></i>
 						{% if form.carbs.errors %}
 							{{ form.carbs(class="form-control form-control-lg is-invalid") }}
 							<div class="invalid-feedback">
@@ -143,6 +143,19 @@
 							</div>
 						{% else %}
 							{{ form.carbs(class="form-control form-control") }}
+						{% endif %}
+					</div>
+					<div class="form-group">
+						{{ form.rating.label(class="form-control-label") }} <i><small>(min.)</small></i>
+						{% if form.rating.errors %}
+							{{ form.rating(class="form-control form-control-lg is-invalid") }}
+							<div class="invalid-feedback">
+								{% for error in form.rating.errors %}
+									<span>{{ error }}</span>
+								{% endfor %}
+							</div>
+						{% else %}
+							{{ form.rating(class="form-control form-control") }}
 						{% endif %}
 					</div>
 				</fieldset>

@@ -53,6 +53,7 @@ def search():
         carbs = form.carbs.data
         meal = form.meal.data
         foodName = form.foodName.data.split()
+        rating = form.rating.data
         foodNameQuery = "true "
         for word in foodName:
             foodNameQuery += f"and food_name like '%%{word}%%' "
@@ -65,9 +66,10 @@ def search():
         steast = "location like 'Steast'" if steast else False
         stwest = "location like 'Stwest'" if stwest else False
         calories = f"calories <= {calories}" if calories is not None else True
-        protein = f"protein <= {protein}" if protein is not None else True
+        protein = f"protein >= {protein}" if protein is not None else True
         fat = f"total_fat <= {fat}" if fat is not None else True
         carbs = f"total_carbs <= {carbs}" if carbs is not None else True
+        rating = f"(ratings >= {rating} or isnull(ratings))" if rating is not None else True
         curdate = datetime.now(timezone('US/Eastern'))  # EST timezone
         curdate = curdate.strftime("%Y-%m-%d")
         with engine.connect() as con:
@@ -79,7 +81,8 @@ def search():
                                 f"and ({iv} or {steast} or {stwest}) "
                                 f"and {calories} and {protein} and {fat} and {carbs} "
                                 f"and meal_type like '{meal}' "
-                                f"and {foodNameQuery}"
+                                f"and {rating} "
+                                f"and {foodNameQuery} "
                                 f"order by location desc, meal_type asc, calories desc, food_name desc")
         foods = list(foods)
         size = len(foods)

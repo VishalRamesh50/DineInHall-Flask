@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, IntegerField, SubmitField, SelectField
+from wtforms import StringField, BooleanField, IntegerField, SubmitField, SelectField, DecimalField
 from wtforms.validators import Optional, NumberRange
 
 
@@ -13,4 +13,5 @@ class SearchForm(FlaskForm):
     protein = IntegerField('Protein', validators=[Optional(), NumberRange(min=0)])
     fat = IntegerField('Fat', validators=[Optional(), NumberRange(min=0)])
     carbs = IntegerField('Carbs', validators=[Optional(), NumberRange(min=0)])
+    rating = DecimalField('Rating', validators=[Optional(), NumberRange(min=1, max=5)])
     submit = SubmitField('Search')
