@@ -5,7 +5,6 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from dineinhall.config import Config
 
-
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
@@ -25,7 +24,9 @@ def create_app(config_class=Config):
 
     from dineinhall.users.routes import users
     from dineinhall.main.routes import main
+    from dineinhall.reviews.routes import review
     app.register_blueprint(users)
     app.register_blueprint(main)
+    app.register_blueprint(review)
 
     return app

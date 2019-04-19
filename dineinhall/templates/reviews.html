@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+	<h1>Reviews</h1>
+	{% for review in reviews %}
+		<article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ review.user_name }}</a>
+              <small class="text-muted">{{ review.timestamp.strftime('%Y-%m-%d') }}</small>
+            </div>
+            <h2>
+            	<a class="article-title" href="{{ url_for('review.foodReview', food_id=review.food_id) }}">
+            		{{ review.food_name }}
+            	</a>
+            		|
+            		{% set starCount = review.stars %}
+		            {% for num in [1, 2, 3, 4, 5] %}
+		            	{% if num <= starCount %}
+		            		★
+		            	{% else %}
+		            		☆
+		            	{% endif %}
+		            {% endfor %}
+            </h2>
+            <p class="article-content">{{ review.description }}</p>
+          </div>
+        </article>
+	{% endfor %}
+{% endblock content %}

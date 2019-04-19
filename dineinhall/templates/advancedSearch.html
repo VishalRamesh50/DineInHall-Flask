@@ -5,7 +5,9 @@
 		<article class="media content-section">
 		  <div class="media-body">
 		    <div class="article-metadata">
-		      <b><u>{{ food.food_name}}</u></b>
+		      <a href="{{ url_for('review.foodReview', food_id=food.food_id) }}">
+		      	<b><u>{{ food.food_name }}</u></b>
+		      </a>
 		      {% if food.location == 'Steast' %}
 		      	<b>(SE)</b>
 		      {% elif food.location == 'Stwest' %}
@@ -13,6 +15,28 @@
 		      {% else %}
 		      	<b>({{food.location}})</b>
 		      {% endif %}
+		      <span style="float:right;">
+		      	<a href="{{ url_for('review.newReview', food_id=food.food_id) }}" class="btn btn-primary" role="button">
+		      		New Review
+		      	</a>
+		      </span>
+		      	|
+		      	<i>
+	    		{% set starCount = food.ratings %}
+	    		{% if starCount != None %}
+	    			{% set starCount = food.ratings|round|int %}
+		            {% for num in [1, 2, 3, 4, 5] %}
+		            	{% if num <= starCount %}
+		            		★
+		            	{% else %}
+		            		☆
+		            	{% endif %}
+		            {% endfor %}
+		            ({{ food.ratings }})
+		        {% else %}
+		        	Not Yet Rated
+	            {% endif %}
+	        	</i>
 		      <br>
 		      {{ "Calories: "}}
 		      {{ food.calories }} |

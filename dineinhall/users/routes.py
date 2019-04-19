@@ -3,7 +3,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from dineinhall import db, bcrypt
 from dineinhall.models import User
 from dineinhall.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
-                                   RequestResetForm, ResetPasswordForm)
+                                    RequestResetForm, ResetPasswordForm)
 from dineinhall.users.utils import save_picture, send_reset_email
 
 users = Blueprint('users', __name__)

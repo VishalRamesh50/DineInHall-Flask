@@ -1,12 +1,12 @@
 import os
 try:
-	# os environment variables from Heroku
-	SECRET_KEY = os.environ["SECRET_KEY"]
-	SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]
-	email_username = os.environ["email_username"]
-	email_password = os.environ["email_password"]
+    # os environment variables from Heroku
+    SECRET_KEY = os.environ["SECRET_KEY"]
+    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]
+    email_username = os.environ["email_username"]
+    email_password = os.environ["email_password"]
 except Exception:
-	from .creds import SECRET_KEY, SQLALCHEMY_DATABASE_URI, email_username, email_password
+    from .creds import SECRET_KEY, SQLALCHEMY_DATABASE_URI, email_username, email_password
 
 
 class Config:
