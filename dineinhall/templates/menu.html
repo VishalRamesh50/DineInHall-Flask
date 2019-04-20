@@ -1,21 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
 	<div class="btn-group btn-group-toggle mb-3">
-	  {% if iv %}
-	  	<a href="{{ url_for('main.filteredLocations', loc='IV') }}" class="btn btn-primary active" role="button">International Village</a>
-	  {% else %}
-	  	<a href="{{ url_for('main.filteredLocations', loc='IV') }}" class="btn btn-primary" role="button">International Village</a>
-	  {% endif %}
-	  {% if steast %}
-	  	<a href="{{ url_for('main.filteredLocations', loc='Steast') }}" class="btn btn-primary active" role="button">Stetson East</a>
-	  {% else %}
-	  	<a href="{{ url_for('main.filteredLocations', loc='Steast') }}" class="btn btn-primary" role="button">Stetson East</a>
-	  {% endif %}
-	  {% if stwest %}
-	  	<a href="{{ url_for('main.filteredLocations', loc='Stwest') }}" class="btn btn-primary active" role="button">Stetson West</a>
-	  {% else %}
-	  	<a href="{{ url_for('main.filteredLocations', loc='Stwest') }}" class="btn btn-primary" role="button">Stetson West</a>
-	  {% endif %}
+		{% if iv %}
+			<a href="{{ url_for('main.filteredLocations', loc='IV') }}" class="btn btn-primary active" role="button">International Village</a>
+		{% else %}
+			<a href="{{ url_for('main.filteredLocations', loc='IV') }}" class="btn btn-primary" role="button">International Village</a>
+		{% endif %}
+		{% if steast %}
+			<a href="{{ url_for('main.filteredLocations', loc='Steast') }}" class="btn btn-primary active" role="button">Stetson East</a>
+		{% else %}
+			<a href="{{ url_for('main.filteredLocations', loc='Steast') }}" class="btn btn-primary" role="button">Stetson East</a>
+		{% endif %}
+		{% if stwest %}
+			<a href="{{ url_for('main.filteredLocations', loc='Stwest') }}" class="btn btn-primary active" role="button">Stetson West</a>
+		{% else %}
+			<a href="{{ url_for('main.filteredLocations', loc='Stwest') }}" class="btn btn-primary" role="button">Stetson West</a>
+		{% endif %}
 	</div>
 	{% if empty %}
 		<div>
@@ -24,54 +24,54 @@
 	{% else %}
 		{% for food in allFoods %}
 			<article class="media content-section">
-			  <div class="media-body">
-			    <div class="article-metadata">
-			      <b><u>{{ food.food_name}}</u></b>
-			      <i>{{ food.meal_type }}</i>
-			      <br>
-			      {{ "Calories: "}}
-			      {{ food.calories }} |
-			      {{ "Protein: "}}
-			      {{ food.protein }} |
-			      {{ "Carbs: "}}
-			      {{ food.total_carbs }} |
-			      {{ "Fat: "}}
-			      {{ food.total_fat }} |
-			      {{ "Portions: "}}
-			      {{ food.serving }}
-			    </div>
-			  </div>
+				<div class="media-body">
+					<div class="article-metadata">
+						<b><u>{{ food.food_name}}</u></b>
+						<i>{{ food.meal_type }}</i>
+						<br>
+						{{ "Calories: "}}
+						{{ food.calories }} |
+						{{ "Protein: "}}
+						{{ food.protein }} |
+						{{ "Carbs: "}}
+						{{ food.total_carbs }} |
+						{{ "Fat: "}}
+						{{ food.total_fat }} |
+						{{ "Portions: "}}
+						{{ food.serving }}
+					</div>
+				</div>
 			</article>
 		{% endfor %}
 	{% endif %}
 {% endblock content %}
 {% block sidebar %}
 	<div class="col-md-4">
-      <div class="content-section">
-        <h3>Dining Hall Hours</h3>
-        <p class='text-muted'>
-          <ul class="list-group">
-            <li class="list-group-item list-group-item-dark"><b>International Village</b></li>
-            <li class="list-group-item list-group-item-light">M-Th: 7am-10pm</li>
-            <li class="list-group-item list-group-item-light">Friday: 7am-9pm</li>
-            <li class="list-group-item list-group-item-light">Weekends: 8am-9pm</li>
-          </ul>
-          <br>
-          <ul class="list-group">
-            <li class="list-group-item list-group-item-dark"><b>Stetson East</b></li>
-            <li class="list-group-item list-group-item-light">M-Th: 7am-11pm</li>
-            <li class="list-group-item list-group-item-light">Friday: 7am-10pm</li>
-            <li class="list-group-item list-group-item-light">Weekends: 8am-10pm</li>
-          </ul>
-          <br>
-          <ul class="list-group">
-            <li class="list-group-item list-group-item-dark"><b>Stetson West</b></li>
-            <li class="list-group-item list-group-item-light">M-Th: 11am-8pm</li>
-            <li class="list-group-item list-group-item-light">Friday: 11am-5pm</li>
-            <li class="list-group-item list-group-item-light">Saturday: Closed</li>
-            <li class="list-group-item list-group-item-light">Sunday: 4pm-8pm</li>
-          </ul>
-        </p>
-      </div>
-    </div>
+		<div class="content-section">
+			<h3>Dining Hall Hours</h3>
+			<p class='text-muted'>
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-dark"><b>International Village</b></li>
+					<li class="list-group-item list-group-item-light">M-Th: 7am-10pm</li>
+					<li class="list-group-item list-group-item-light">Friday: 7am-9pm</li>
+					<li class="list-group-item list-group-item-light">Weekends: 8am-9pm</li>
+				</ul>
+				<br>
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-dark"><b>Stetson East</b></li>
+					<li class="list-group-item list-group-item-light">M-Th: 7am-11pm</li>
+					<li class="list-group-item list-group-item-light">Friday: 7am-10pm</li>
+					<li class="list-group-item list-group-item-light">Weekends: 8am-10pm</li>
+				</ul>
+				<br>
+				<ul class="list-group">
+					<li class="list-group-item list-group-item-dark"><b>Stetson West</b></li>
+					<li class="list-group-item list-group-item-light">M-Th: 11am-8pm</li>
+					<li class="list-group-item list-group-item-light">Friday: 11am-5pm</li>
+					<li class="list-group-item list-group-item-light">Saturday: Closed</li>
+					<li class="list-group-item list-group-item-light">Sunday: 4pm-8pm</li>
+				</ul>
+			</p>
+		</div>
+	</div>
 {% endblock %}
