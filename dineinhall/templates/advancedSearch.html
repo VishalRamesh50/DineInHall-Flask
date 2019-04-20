@@ -1,170 +1,170 @@
 {% extends "layout.html" %}
 {% block content %}
-	<h1>Advanced Search</h1>
-	{% for food in allFoods %}
-		<article class="media content-section">
-			<div class="media-body">
-				<div class="article-metadata">
-					<a href="{{ url_for('review.foodReview', food_id=food.food_id) }}">
-						<b><u>{{ food.food_name }}</u></b>
-					</a>
-					{% if food.location == 'Steast' %}
-						<b>(SE)</b>
-					{% elif food.location == 'Stwest' %}
-						<b>(SW)</b>
-					{% else %}
-						<b>({{food.location}})</b>
-					{% endif %}
-					<span style="float:right">
-						<a href="{{ url_for('review.newReview', food_id=food.food_id) }}" class="btn btn-primary" role="button">
-							New Review
-						</a>
-					</span>
-				</br>
-				<i>
-					{% set starCount = food.ratings %}
-					{% if starCount != None %}
-						{% set starCount = food.ratings|round|int %}
-						{% for num in [1, 2, 3, 4, 5] %}
-							{% if num <= starCount %}
-								★
-							{% else %}
-								☆
-							{% endif %}
-						{% endfor %}
-						({{ food.ratings }})
-						{% else %}
-							Not Yet Rated
-						{% endif %}
-				</i>
-				<br>
-				{{ "Calories: "}}
-				{{ food.calories }} |
-				{{ "Protein: "}}
-				{{ food.protein }} |
-				{{ "Carbs: "}}
-				{{ food.total_carbs }} |
-				{{ "Fat: "}}
-				{{ food.total_fat }} |
-				{{ "Portions: "}}
-				{{ food.serving }}
-			</div>
-		</div>
-		</article>
-	{% endfor %}
+  <h1>Advanced Search</h1>
+  {% for food in allFoods %}
+    <article class="media content-section">
+      <div class="media-body">
+        <div class="article-metadata">
+          <a href="{{ url_for('review.foodReview', food_id=food.food_id) }}">
+            <b><u>{{ food.food_name }}</u></b>
+          </a>
+          {% if food.location == 'Steast' %}
+            <b>(SE)</b>
+          {% elif food.location == 'Stwest' %}
+            <b>(SW)</b>
+          {% else %}
+            <b>({{food.location}})</b>
+          {% endif %}
+          <span style="float:right">
+            <a href="{{ url_for('review.newReview', food_id=food.food_id) }}" class="btn btn-primary" role="button">
+              New Review
+            </a>
+          </span>
+        </br>
+        <i>
+          {% set starCount = food.ratings %}
+          {% if starCount != None %}
+            {% set starCount = food.ratings|round|int %}
+            {% for num in [1, 2, 3, 4, 5] %}
+              {% if num <= starCount %}
+                ★
+              {% else %}
+                ☆
+              {% endif %}
+            {% endfor %}
+            ({{ food.ratings }})
+            {% else %}
+              Not Yet Rated
+            {% endif %}
+        </i>
+        <br>
+        {{ "Calories: "}}
+        {{ food.calories }} |
+        {{ "Protein: "}}
+        {{ food.protein }} |
+        {{ "Carbs: "}}
+        {{ food.total_carbs }} |
+        {{ "Fat: "}}
+        {{ food.total_fat }} |
+        {{ "Portions: "}}
+        {{ food.serving }}
+      </div>
+    </div>
+    </article>
+  {% endfor %}
 {% endblock content %}
 {% block sidebar %}
-	<div class="col-md-4">
-		<div class="content-section">
-			<h3>Search</h3>
-			<p class='text-muted'>Choose your maximum nutritional preferences.
-				<ul class="list-group">
-					<form method="POST" action="">
-						{{ form.hidden_tag() }}
-						<fieldset class="form-group">
-							<legend class="border-bottom mb-4"></legend>
-							<div class="form-group">
-								{{ form.foodName.label(class="form-control-label") }}
-								{% if form.foodName.errors %}
-									{{ form.foodName(class="form-control form-control-lg is-invalid") }}
-									<div class="invalid-feedback">
-										{% for error in form.foodName.errors %}
-											<span>{{ error }}</span>
-										{% endfor %}
-									</div>
-								{% else %}
-									{{ form.foodName(class="form-control form-control") }}
-								{% endif %}
-							</div>
-							<div class="form-check">
-								{{ form.iv(class="form-check-input") }}
-								{{ form.iv.label(class="form-check-label") }}
-							</div>
-							<div class="form-check">
-								{{ form.steast(class="form-check-input") }}
-								{{ form.steast.label(class="form-check-label") }}
-							</div>
-							<div class="form-check">
-								{{ form.stwest(class="form-check-input") }}
-								{{ form.stwest.label(class="form-check-label") }}
-							</div>
-							<br>
-							<div class="form-group">
-								{{ form.meal.label(class="form-control-label") }}
-								{{ form.meal(class="form-control form-control") }}
-							</div>
-							<div class="form-group">
-								{{ form.calories.label(class="form-control-label") }} <i><small>(max.)</small></i>
-								{% if form.calories.errors %}
-									{{ form.calories(class="form-control form-control-lg is-invalid") }}
-									<div class="invalid-feedback">
-										{% for error in form.calories.errors %}
-											<span>{{ error }}</span>
-										{% endfor %}
-									</div>
-								{% else %}
-									{{ form.calories(class="form-control form-control") }}
-								{% endif %}
-							</div>
-							<div class="form-group">
-								{{ form.protein.label(class="form-control-label") }} <i><small>(min.)</small></i>
-								{% if form.protein.errors %}
-									{{ form.protein(class="form-control form-control-lg is-invalid") }}
-									<div class="invalid-feedback">
-										{% for error in form.protein.errors %}
-											<span>{{ error }}</span>
-										{% endfor %}
-									</div>
-								{% else %}
-									{{ form.protein(class="form-control form-control") }}
-								{% endif %}
-							</div>
-							<div class="form-group">
-								{{ form.fat.label(class="form-control-label") }} <i><small>(max.)</small></i>
-								{% if form.fat.errors %}
-									{{ form.fat(class="form-control form-control-lg is-invalid") }}
-									<div class="invalid-feedback">
-										{% for error in form.fat.errors %}
-											<span>{{ error }}</span>
-										{% endfor %}
-									</div>
-								{% else %}
-									{{ form.fat(class="form-control form-control") }}
-								{% endif %}
-							</div>
-							<div class="form-group">
-								{{ form.carbs.label(class="form-control-label") }} <i><small>(max.)</small></i>
-								{% if form.carbs.errors %}
-									{{ form.carbs(class="form-control form-control-lg is-invalid") }}
-									<div class="invalid-feedback">
-										{% for error in form.carbs.errors %}
-											<span>{{ error }}</span>
-										{% endfor %}
-									</div>
-								{% else %}
-									{{ form.carbs(class="form-control form-control") }}
-								{% endif %}
-							</div>
-							<div class="form-group">
-								{{ form.rating.label(class="form-control-label") }} <i><small>(min.)</small></i>
-								{% if form.rating.errors %}
-									{{ form.rating(class="form-control form-control-lg is-invalid") }}
-									<div class="invalid-feedback">
-										{% for error in form.rating.errors %}
-											<span>{{ error }}</span>
-										{% endfor %}
-									</div>
-								{% else %}
-									{{ form.rating(class="form-control form-control") }}
-								{% endif %}
-							</div>
-						</fieldset>
-						<div class="form-group">
-							{{ form.submit(class="btn btn-outline-info") }}
-						</div>
-					</form>
-				</ul>
-			</p>
-		</div>
-	</div>
+  <div class="col-md-4">
+    <div class="content-section">
+      <h3>Search</h3>
+      <p class='text-muted'>Choose your maximum nutritional preferences.
+        <ul class="list-group">
+          <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+              <legend class="border-bottom mb-4"></legend>
+              <div class="form-group">
+                {{ form.foodName.label(class="form-control-label") }}
+                {% if form.foodName.errors %}
+                  {{ form.foodName(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                    {% for error in form.foodName.errors %}
+                      <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{ form.foodName(class="form-control form-control") }}
+                {% endif %}
+              </div>
+              <div class="form-check">
+                {{ form.iv(class="form-check-input") }}
+                {{ form.iv.label(class="form-check-label") }}
+              </div>
+              <div class="form-check">
+                {{ form.steast(class="form-check-input") }}
+                {{ form.steast.label(class="form-check-label") }}
+              </div>
+              <div class="form-check">
+                {{ form.stwest(class="form-check-input") }}
+                {{ form.stwest.label(class="form-check-label") }}
+              </div>
+              <br>
+              <div class="form-group">
+                {{ form.meal.label(class="form-control-label") }}
+                {{ form.meal(class="form-control form-control") }}
+              </div>
+              <div class="form-group">
+                {{ form.calories.label(class="form-control-label") }} <i><small>(max.)</small></i>
+                {% if form.calories.errors %}
+                  {{ form.calories(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                    {% for error in form.calories.errors %}
+                      <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{ form.calories(class="form-control form-control") }}
+                {% endif %}
+              </div>
+              <div class="form-group">
+                {{ form.protein.label(class="form-control-label") }} <i><small>(min.)</small></i>
+                {% if form.protein.errors %}
+                  {{ form.protein(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                    {% for error in form.protein.errors %}
+                      <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{ form.protein(class="form-control form-control") }}
+                {% endif %}
+              </div>
+              <div class="form-group">
+                {{ form.fat.label(class="form-control-label") }} <i><small>(max.)</small></i>
+                {% if form.fat.errors %}
+                  {{ form.fat(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                    {% for error in form.fat.errors %}
+                      <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{ form.fat(class="form-control form-control") }}
+                {% endif %}
+              </div>
+              <div class="form-group">
+                {{ form.carbs.label(class="form-control-label") }} <i><small>(max.)</small></i>
+                {% if form.carbs.errors %}
+                  {{ form.carbs(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                    {% for error in form.carbs.errors %}
+                      <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{ form.carbs(class="form-control form-control") }}
+                {% endif %}
+              </div>
+              <div class="form-group">
+                {{ form.rating.label(class="form-control-label") }} <i><small>(min.)</small></i>
+                {% if form.rating.errors %}
+                  {{ form.rating(class="form-control form-control-lg is-invalid") }}
+                  <div class="invalid-feedback">
+                    {% for error in form.rating.errors %}
+                      <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{ form.rating(class="form-control form-control") }}
+                {% endif %}
+              </div>
+            </fieldset>
+            <div class="form-group">
+              {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+          </form>
+        </ul>
+      </p>
+    </div>
+  </div>
 {% endblock %}
