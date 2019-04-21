@@ -8,6 +8,7 @@
           <a href="{{ url_for('review.foodReview', food_id=food.food_id) }}">
             <b><u>{{ food.food_name }}</u></b>
           </a>
+          <!-- Dining Hall Location -->
           {% if food.location == 'Steast' %}
             <b>(SE)</b>
           {% elif food.location == 'Stwest' %}
@@ -22,6 +23,7 @@
           </span>
         </br>
         <i>
+          <!-- Drawing food rating stars using a for loop -->
           {% set starCount = food.ratings %}
           {% if starCount != None %}
             {% set starCount = food.ratings|round|int %}

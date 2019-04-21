@@ -5,13 +5,17 @@
     <article class="media content-section">
       <div class="media-body">
         <div class="article-metadata">
-          <a class="mr-2" href="#">{{ review.user_name }}</a>
+          <!-- Username -->
+          <a class="mr-2" href="{{ url_for('users.user_reviews', username=review.user_name) }}">{{ review.user_name }}</a>
+          <!-- Timestamp -->
           <small class="text-muted">{{ review.timestamp.strftime('%Y-%m-%d') }}</small>
         </div>
         <h2>
+          <!-- Food Name -->
           <a class="article-title" href="{{ url_for('review.foodReview', food_id=review.food_id) }}">
             {{ review.food_name }}
           </a>
+          <!-- Generate Stars for Rating -->
           <span style="float:right">
             {% set starCount = review.stars %}
             {% for num in [1, 2, 3, 4, 5] %}

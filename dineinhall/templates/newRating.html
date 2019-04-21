@@ -5,6 +5,7 @@
       {{ form.hidden_tag() }}
       <fieldset class="form-group">
         <legend class="border-bottom mb-4">{{ legend }}</legend>
+        <!-- Star Rating -->
         <div class="form-group">
           {{ form.stars.label(class="form-control-label") }}
           {% if form.stars.errors %}
@@ -18,6 +19,7 @@
             {{ form.stars(class="form-control form-control-lg") }}
           {% endif %}
         </div>
+        <!-- Optional Review Description -->
         <div class="form-group">
           {{ form.description.label(class="form-control-label") }}
           {% if form.description.errors %}
@@ -32,6 +34,7 @@
           {% endif %}
         </div>
       </fieldset>
+      <!-- Submit Button -->
       <div class="form-group">
         {{ form.submit(class="btn btn-outline-info") }}
       </div>

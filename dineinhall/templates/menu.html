@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+  <!-- Location Buttons -->
   <div class="btn-group btn-group-toggle mb-3">
     {% if iv %}
       <a href="{{ url_for('main.filteredLocations', loc='IV') }}" class="btn btn-primary active" role="button">International Village</a>
@@ -17,11 +18,13 @@
       <a href="{{ url_for('main.filteredLocations', loc='Stwest') }}" class="btn btn-primary" role="button">Stetson West</a>
     {% endif %}
   </div>
+  <!-- if location is closed -->
   {% if empty %}
     <div>
       This Location is Closed.
     </div>
   {% else %}
+    <!-- Generate Each Food Item that Exists -->
     {% for food in allFoods %}
       <article class="media content-section">
         <div class="media-body">
@@ -45,6 +48,7 @@
     {% endfor %}
   {% endif %}
 {% endblock content %}
+<!-- Hours of Operation -->
 {% block sidebar %}
   <div class="col-md-4">
     <div class="content-section">

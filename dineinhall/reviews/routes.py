@@ -14,9 +14,11 @@ except Exception:
 
 review = Blueprint('review', __name__)
 
+# allows us to recreate SQL query statements in Python
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
 
+# page where user creates a new review
 @review.route("/newReview/<food_id>", methods=['GET', 'POST'])
 @login_required
 def newReview(food_id):
@@ -25,6 +27,7 @@ def newReview(food_id):
         user_id = current_user.user_id
         stars = form.stars.data
         description = form.description.data.strip()
+        # description is None type if not input
         description = description if description else None
         timestamp = datetime.now(timezone('US/Eastern'))  # EST timezone
         timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
@@ -38,11 +41,13 @@ def newReview(food_id):
     return render_template('newRating.html', title='New Review', form=form)
 
 
+# displays the reviews and rating for every food that has been reviewed/rated
 @review.route("/reviews")
 def reviews():
     return redirect(url_for('review.foodReview', food_id=-1))
 
 
+# displays the reviews and rating for the specified food
 @review.route("/reviews/<food_id>")
 def foodReview(food_id):
     if int(food_id) == -1:
@@ -50,6 +55,7 @@ def foodReview(food_id):
     else:
         food_id = f'food_id = {food_id}'
     with engine.connect() as con:
+        # all the reviews for the given food id where the description exists
         reviews = con.execute("select * "
                               f"from food join rating using (food_id) "
                               f"join user using (user_id) "
@@ -57,9 +63,10 @@ def foodReview(food_id):
                               f"order by timestamp desc")
     reviews = list(reviews)
     size = len(reviews)
+
+    # if there are no reviews for the given food id
     if size == 0:
         flash('No reviews for this food item', 'danger')
     else:
         flash(f'Found {size} reviews!', 'success')
-
     return render_template('reviews.html', title='Ratings', reviews=reviews)

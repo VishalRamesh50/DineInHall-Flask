@@ -3,6 +3,7 @@ from wtforms import SubmitField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Optional, NumberRange, Length
 
 
+# form to rate a food item
 class ReviewForm(FlaskForm):
     stars = IntegerField('Stars', validators=[DataRequired(), NumberRange(min=1, max=5)])
     description = TextAreaField('Description', validators=[Optional(), Length(max=300)])

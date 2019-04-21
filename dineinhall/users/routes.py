@@ -1,22 +1,36 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint
+from sqlalchemy import create_engine
 from flask_login import login_user, current_user, logout_user, login_required
 from dineinhall import db, bcrypt
 from dineinhall.models import User
 from dineinhall.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                     RequestResetForm, ResetPasswordForm)
 from dineinhall.users.utils import save_picture, send_reset_email
+import os
+try:
+    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]  # URI from Heroku
+except Exception:
+    from ..creds import SQLALCHEMY_DATABASE_URI  # local URI
 
 users = Blueprint('users', __name__)
 
+# allows us to recreate SQL query statements in Python
+engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
+
+# register page where the new users can register for an account given the right validated credentials
 @users.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     form = RegistrationForm()
+    # checks if the user put in valid informaton to register for an account
     if form.validate_on_submit():
+        # hashes password to store in database
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        # get user object
         user = User(user_name=form.username.data, email=form.email.data, password=hashed_password)
+        # add user to database
         db.session.add(user)
         db.session.commit()
         flash('Your account has been created! You are now able to log in', 'success')
@@ -24,13 +38,16 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
+# login page where returning users can log back into their account
 @users.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     form = LoginForm()
+    # checks if the user put in valid informaton to log into their account
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        # checks if decrypted password matches the password stored for the user in the database
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
@@ -40,16 +57,20 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
+# allows users to log out of their account, if already logged in
 @users.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('main.home'))
 
 
+# allows users to see their personal account page with profile picture
+# users can also change their username and email on their account page
 @users.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
     form = UpdateAccountForm()
+    # checks if the user put in valid informaton to update into their account
     if form.validate_on_submit():
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
@@ -67,21 +88,35 @@ def account():
                            image_file=image_file, form=form)
 
 
+# shows all reviews/ratings for the specified user
 @users.route("/user/<string:username>")
-def user_posts(username):
-    page = request.args.get('page', 1, type=int)
-    user = User.query.filter_by(user_name=username).first_or_404()
-    posts = Post.query.filter_by(author=user)\
-        .order_by(Post.date_posted.desc())\
-        .paginate(page=page, per_page=5)
-    return render_template('user_posts.html', posts=posts, user=user)
+def user_reviews(username):
+    with engine.connect() as con:
+        # filters out the review from just the given username
+        # and a description exists
+        reviews = con.execute("select * "
+                              f"from food join rating using (food_id) "
+                              f"join user using (user_id) "
+                              f"where not isnull(description) and user_name='{username}' "
+                              f"order by timestamp desc")
+    reviews = list(reviews)
+    size = len(reviews)
+
+    # determining message displayed after a search
+    if size == 0:
+        flash('No reviews from this user', 'danger')
+    else:
+        flash(f'Found {size} reviews!', 'success')
+    return render_template('reviews.html', title='Ratings', reviews=reviews)
 
 
+# allows users to request a password reset
 @users.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     form = RequestResetForm()
+    # checks if the user entered in a valid existing email that's linked to an account to reset their password
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         send_reset_email(user)
@@ -90,16 +125,20 @@ def reset_request():
     return render_template('reset_request.html', title='Reset Password', form=form)
 
 
+# allows users to reset their password
 @users.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     user = User.verify_reset_token(token)
+    # if there is not a user with the given token
     if user is None:
         flash('That is an invalid or expired token', 'warning')
         return redirect(url_for('users.reset_request'))
     form = ResetPasswordForm()
+    # if the form has been submitted succesfully
     if form.validate_on_submit():
+        # hash the users password to store in database
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user.password = hashed_password
         db.session.commit()

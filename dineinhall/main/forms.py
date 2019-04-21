@@ -3,6 +3,7 @@ from wtforms import StringField, BooleanField, IntegerField, SubmitField, Select
 from wtforms.validators import Optional, NumberRange
 
 
+# form to search for food items on advanced search page
 class SearchForm(FlaskForm):
     iv = BooleanField('International Village')
     steast = BooleanField('Stetson East')
