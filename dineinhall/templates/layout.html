@@ -20,7 +20,7 @@
   <header class="site-header">
     <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
       <div class="container">
-        <a href="{{ url_for('main.mainPage') }}">
+        <a href="{{ url_for('main.home') }}">
           <img class ='img-responsive mr-3' src="https://i.imgur.com/nEbjT7b.png" id="logo" />
         </a>
         <a class="navbar-brand" href="/">DineInHall</a>
@@ -29,7 +29,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarToggle">
           <div class="navbar-nav mr-auto">
-            <a class="nav-item nav-link" href="{{ url_for('main.home') }}">Menu</a>
+            <a class="nav-item nav-link" href="{{ url_for('main.menu') }}">Menu</a>
             <a class="nav-item nav-link" href="{{ url_for('main.search') }}">Advanced Search</a>
             <a class="nav-item nav-link" href="{{ url_for('review.reviews') }}">Reviews</a>
           </div>

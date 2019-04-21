@@ -18,10 +18,11 @@ review = Blueprint('review', __name__)
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
 
-# page where user creates a new review
+# page where user creates a new review (must be logged in)
 @review.route("/newReview/<food_id>", methods=['GET', 'POST'])
 @login_required
 def newReview(food_id):
+    # food review form object
     form = ReviewForm()
     if form.validate_on_submit():
         user_id = current_user.user_id

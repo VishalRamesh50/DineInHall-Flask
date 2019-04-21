@@ -34,6 +34,7 @@ class Utils():
     def fetchLastField(self, filename, field):
         with open(filename, 'r') as csv_file:
             csv_reader = csv.DictReader(csv_file)
+            # gets the last row from the csv
             last_row = list(csv_reader)[-1]
             return last_row[field]
 
@@ -42,8 +43,10 @@ class Utils():
         with open(filename, 'r') as csv_file:
             final_list = []
             csv_reader = csv.DictReader(csv_file)
+            # for each row in the csv
             for row in csv_reader:
                 dict = {}
+                # create a key value pair for each columnn
                 for column in args:
                     dict[column] = row[column]
                 final_list.append(dict)
@@ -74,6 +77,7 @@ class Scraper():
     def stripNutrients(self, element):
         result = ''.join(c for c in element if c.isdigit() or c == '.')
         if result == '':
+            # return a sentinel value since SQL cannot import None types correctly
             return -1
         else:
             return result
@@ -101,6 +105,7 @@ class Scraper():
                         # creates a list of image src links
                         src_links.append(image['src'])
                         # assigns food qualities based on whether the image links are present for that food item
+                        # cast booleans to integers to store as 0 and 1 instead of True and False for importing to SQL
                         vegetarian = int("/img/icon_vegetarian_200px.png" in src_links)
                         vegan = int("/img/icon_vegan_200px.png" in src_links)
                         balanced = int("/img/icon_balanced_200px.png" in src_links)
@@ -128,15 +133,21 @@ class Scraper():
 
                     # writes to the csv file
                     newMenuAttributes = {'meal_type': mealType, 'location': location, 'menu_date': date}
+                    # if this menu has not been recorded yet
                     if newMenuAttributes not in self.uniqueMenus:
                         self.menuID += 1
+                        # add the combination of attributes to the list of dictionaries
                         self.uniqueMenus.append(newMenuAttributes)
+                        # write to the csv
                         menu_csv_writer.writerow({'menu_id': self.menuID, 'meal_type': mealType, 'location': location, 'menu_date': date})
 
                     existingFoodNames = [d.get('food_name', None) for d in self.uniqueFoods]
+                    # if this food item has not been recorded yet
                     if foodName not in existingFoodNames:
                         self.foodID += 1
+                        # add the combination of attributes to the list of dictionaries
                         self.uniqueFoods.append({'food_id': self.foodID, 'food_name': foodName})
+                        # write to the csv
                         food_csv_writer.writerow({'food_id': self.foodID, 'food_name': foodName, 'serving': serving, 'calories': calories,
                                                   'calories_from_fat': caloriesFromFat, 'cholesterol': cholesterol, 'dietary_fiber': dietaryFiber,
                                                   'protein': protein, 'saturated_fat': saturatedFat, 'sodium': sodium, 'sugar': sugar,
@@ -149,7 +160,9 @@ class Scraper():
 
                         # make a dictionary with the menuID and the new foodID
                         newMenuFoodCombo = {'menu_id': self.menuID, 'food_id': self.foodID}
+                        # add the combination of attributes to the list of dictionaries
                         self.uniqueMenuFoodCombo.append(newMenuFoodCombo)
+                        # write to the csv
                         menu_food_csv_writer.writerow({'menu_id': self.menuID, 'food_id': self.foodID})
                     # if this food item has already been recorded
                     else:
@@ -162,16 +175,17 @@ class Scraper():
                             self.uniqueMenuFoodCombo.append(newMenuFoodCombo)
                             menu_food_csv_writer.writerow({'menu_id': self.menuID, 'food_id': dict['food_id']})
 
-    # waits for page to load before scraping data
+    # waits for page to load within the given limit before scraping data
     def waitForTab(self, limit):
         try:
-            start = time.time()
+            start = time.time()  # start time
             end = start
             loading_msg = self.browser.find_element_by_css_selector('div.loading-content_loadingText_22OQi').get_attribute('textContent').strip()
             wait_msg = "Loading menus for selected location and date"
             failure_msg = "Sorry, we weren't able to find menus for this location for the day you selected."
             # while page is loading
             while(loading_msg == wait_msg or loading_msg == failure_msg):
+                # update the end time to be the current time
                 end = time.time()
                 # if the limit has been passed and the failure message appears no foods exist so break
                 if ((end-start)//1 >= limit and loading_msg == failure_msg):
@@ -224,6 +238,7 @@ class Scraper():
                     day.click()
                     self.waitForTab(3)
                     self.tryInserting(shortDate)
+                    # increment the date by 1 day
                     fullDate += dt.timedelta(days=1)
                 else:
                     break
@@ -242,21 +257,27 @@ menuDataExists = os.path.isfile(menuDataFile)
 menuFoodDataExists = os.path.isfile(jointMenuFoodFile)
 
 with open(foodDataFile, 'a', encoding='utf-8') as food_csv_file, open(menuDataFile, 'a', encoding='utf-8') as menu_csv_file, open(jointMenuFoodFile, 'a', encoding='utf-8') as menu_food_csv_file:
+    # food table
     fieldnames = ['food_id', 'food_name', 'serving', 'calories', 'calories_from_fat',
                   'cholesterol', 'dietary_fiber', 'protein', 'saturated_fat',
                   'sodium', 'sugar', 'total_carbs', 'total_fat', 'trans_fat',
                   'vitamin_d', 'vegetarian', 'vegan', 'balanced']
     food_csv_writer = csv.DictWriter(food_csv_file, fieldnames=fieldnames)
+    # if the file does not already exist add the headers
     if not foodDataExists:
         food_csv_writer.writeheader()
 
+    # menu table
     fieldnames = ['menu_id', 'meal_type', 'location', 'menu_date']
     menu_csv_writer = csv.DictWriter(menu_csv_file, fieldnames=fieldnames)
+    # if the file does not already exist add the headers
     if not menuDataExists:
         menu_csv_writer.writeheader()
 
+    # food_on_menu table
     fieldnames = ['menu_id', 'food_id']
     menu_food_csv_writer = csv.DictWriter(menu_food_csv_file, fieldnames=fieldnames)
+    # if the file does not already exist add the headers
     if not menuFoodDataExists:
         menu_food_csv_writer.writeheader()
 

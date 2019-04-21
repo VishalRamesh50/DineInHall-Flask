@@ -17,13 +17,13 @@ engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
 # routes the user to the home page
 @main.route("/")
-def mainPage():
+def home():
     return render_template('main.html')
 
 
 # routes the user to the menu page with the default location being IV
 @main.route("/menu")
-def home():
+def menu():
     return redirect(url_for('main.filteredLocations', loc='IV'))
 
 
@@ -38,20 +38,21 @@ def filteredLocations(loc):
                          f"= curdate() and location like '{loc}'")
 
     foods = list(rs)
-    # if there are foods available that day for the given location
-    empty = len(foods) == 0
+    # if there is no food available that day, the location is closed
+    closed = len(foods) == 0
     locations = {'Stwest': False, 'IV': False, 'Steast': False}
     # sets the used location to be true in order to display location name
     locations[loc] = True
 
-    return render_template('menu.html', allFoods=foods, stwest=locations['Stwest'], iv=locations['IV'], steast=locations['Steast'], empty=empty, title=loc)
+    return render_template('menu.html', allFoods=foods, stwest=locations['Stwest'], iv=locations['IV'], steast=locations['Steast'], closed=closed, title=loc)
 
 
 # the advanced search page for querying foods using specific attributes
 @main.route("/AdvancedSearch", methods=['GET', 'POST'])
 def search():
-    # search form object
+    # advanced search form object
     form = SearchForm()
+    # if form is submitted successfully
     if form.validate_on_submit():
         # boolean values for location
         iv = form.iv.data
@@ -89,7 +90,7 @@ def search():
         fat = f"total_fat <= {fat}" if fat is not None else True
         # foods less than or equal to the given carbs
         carbs = f"total_carbs <= {carbs}" if carbs is not None else True
-        # foods with ratings above the given rating (including not yet rated)
+        # foods with ratings greater than or equal to the given rating (including not yet rated)
         rating = f"(ratings >= {rating} or isnull(ratings))" if rating is not None else True
         # set a timezone to avoid the inconsistent timezone of the Heroku server
         curdate = datetime.now(timezone('US/Eastern'))  # EST timezone

@@ -18,8 +18,8 @@
       <a href="{{ url_for('main.filteredLocations', loc='Stwest') }}" class="btn btn-primary" role="button">Stetson West</a>
     {% endif %}
   </div>
-  <!-- if location is closed -->
-  {% if empty %}
+  {% if closed %}
+    <!-- If Location Closed -->
     <div>
       This Location is Closed.
     </div>

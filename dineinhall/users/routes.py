@@ -21,8 +21,10 @@ engine = create_engine(SQLALCHEMY_DATABASE_URI)
 # register page where the new users can register for an account given the right validated credentials
 @users.route("/register", methods=['GET', 'POST'])
 def register():
+    # if user is already logged in redirect user to home page
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
+    # user registration form object
     form = RegistrationForm()
     # checks if the user put in valid informaton to register for an account
     if form.validate_on_submit():
@@ -41,8 +43,10 @@ def register():
 # login page where returning users can log back into their account
 @users.route("/login", methods=['GET', 'POST'])
 def login():
+    # if user is already logged in redirect user to home page
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
+    # user login form object
     form = LoginForm()
     # checks if the user put in valid informaton to log into their account
     if form.validate_on_submit():
@@ -51,6 +55,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
+            # redirect user to the page they were previously on else redirect to the home page
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
@@ -64,11 +69,12 @@ def logout():
     return redirect(url_for('main.home'))
 
 
-# allows users to see their personal account page with profile picture
+# allows users to see their personal account page with profile picture (must be logged in)
 # users can also change their username and email on their account page
 @users.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
+    # user update account form object
     form = UpdateAccountForm()
     # checks if the user put in valid informaton to update into their account
     if form.validate_on_submit():
@@ -113,11 +119,14 @@ def user_reviews(username):
 # allows users to request a password reset
 @users.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
+    # if user is already logged in redirect user to home page
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
+    # user request password reset form object
     form = RequestResetForm()
     # checks if the user entered in a valid existing email that's linked to an account to reset their password
     if form.validate_on_submit():
+        # get user object
         user = User.query.filter_by(email=form.email.data).first()
         send_reset_email(user)
         flash('An email has been sent with instructions to reset your password.', 'info')
@@ -128,6 +137,7 @@ def reset_request():
 # allows users to reset their password
 @users.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
+    # if user is already logged in redirect user to home page
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     user = User.verify_reset_token(token)
@@ -135,6 +145,7 @@ def reset_token(token):
     if user is None:
         flash('That is an invalid or expired token', 'warning')
         return redirect(url_for('users.reset_request'))
+    # user reset password form object
     form = ResetPasswordForm()
     # if the form has been submitted succesfully
     if form.validate_on_submit():
