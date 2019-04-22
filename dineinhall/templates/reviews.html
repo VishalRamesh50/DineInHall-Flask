@@ -6,6 +6,8 @@
     <article class="media content-section">
       <div class="media-body">
         <div class="article-metadata">
+          <!-- profile pic -->
+          <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/default.jpg') }}">
           <!-- Username -->
           <a class="mr-2" href="{{ url_for('users.user_reviews', username=review.user_name) }}">{{ review.user_name }}</a>
           <!-- Timestamp -->
