@@ -1,21 +1,32 @@
-import csv
-import os
+from sqlalchemy import create_engine
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
 import time
 import datetime as dt
 from datetime import datetime
 import calendar
-
-import linecache
+import os
 import sys
+
+# give access to the parent directory to run independently
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'dineinhall'))
+try:
+    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]  # URI from Heroku
+except Exception:
+    from creds import SQLALCHEMY_DATABASE_URI  # local URI
+
+# allows us to recreate SQL query statements in Python
+engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
 browser = webdriver.Chrome('/chromedriver')
 browser.get('https://new.dineoncampus.com/Northeastern/menus')
-time.sleep(10)  # wait for page to render javascript
+time.sleep(5)  # wait for page to render javascript
 soup = BeautifulSoup(browser.page_source, 'lxml')
 
+import linecache
+import sys
 
 # method to print exception with line numbers
 def PrintException():
@@ -30,28 +41,42 @@ def PrintException():
 
 class Utils():
 
-    # fetches any field from the last row of a csv file
-    def fetchLastField(self, filename, field):
-        with open(filename, 'r') as csv_file:
-            csv_reader = csv.DictReader(csv_file)
-            # gets the last row from the csv
-            last_row = list(csv_reader)[-1]
-            return last_row[field]
+    # fetches any field from the last row of the database
+    def fetchLastField(self, field):
+        with engine.connect() as con:
+            rs = con.execute(f'select distinct {field} '
+                              'from menu join food_on_menu using (menu_id) '
+                              'join food using (food_id) '
+                             f'order by {field} desc '
+                              'limit 1')
+        # returns the first item in the row
+        try:
+            return list(rs)[0][0]
+        except IndexError:
+            return 0
 
     # creates a list of dictionaries with any variable amount of fields for the dictionary
-    def createCombinations(self, filename, *args):
-        with open(filename, 'r') as csv_file:
-            final_list = []
-            csv_reader = csv.DictReader(csv_file)
-            # for each row in the csv
-            for row in csv_reader:
+    def createCombinations(self, *args):
+        final_list = []
+        with engine.connect() as con:
+            rs = con.execute(f'select distinct * '
+                              'from menu join food_on_menu using (menu_id) '
+                              'join food using (food_id)')
+            # for each row in the result
+            for row in rs:
                 dict = {}
                 # create a key value pair for each columnn
                 for column in args:
                     dict[column] = row[column]
                 final_list.append(dict)
+            # insert a sentinel value to create a dictionary if no previous data exists
             final_list.append({'sentinel': -1})
         return final_list
+
+    def cleanName(self, foodName):
+        foodName = foodName.replace("%", r"%%")
+        foodName = foodName.replace('"', r"'")
+        return foodName
 
 
 class Scraper():
@@ -59,30 +84,23 @@ class Scraper():
         self.browser = browser
         self.soup = BeautifulSoup(browser.page_source, 'lxml')
         # sets the food id to the last known food id
-        self.foodID = Utils().fetchLastField(foodDataFile, 'food_id')
-        # if no food id to start with, set to 0
-        self.foodID = 0 if self.foodID is None else int(self.foodID)
+        self.foodID = Utils().fetchLastField('food_id')
         # sets the menu id to the last known menu id
-        self.menuID = Utils().fetchLastField(menuDataFile, 'menu_id')
-        # if no menu id to start with, set to 0
-        self.menuID = 0 if self.menuID is None else int(self.menuID)
+        self.menuID = Utils().fetchLastField('menu_id')
         # list of dictionary combinations of food ids and their associated names
-        self.uniqueFoods = Utils().createCombinations(foodDataFile, 'food_id', 'food_name')
+        self.uniqueFoods = Utils().createCombinations('food_id', 'food_name')
         # list of dictionary combinations of unique menu data
-        self.uniqueMenus = Utils().createCombinations(menuDataFile, 'meal_type', 'location', 'menu_date')
+        self.uniqueMenus = Utils().createCombinations('meal_type', 'location', 'menu_date')
         # list of dictionary pairs of menu ids and food ids
-        self.uniqueMenuFoodCombo = Utils().createCombinations(jointMenuFoodFile, 'menu_id', 'food_id')
+        self.uniqueMenuFoodCombo = Utils().createCombinations('menu_id', 'food_id')
 
     # strips the nutrient information of all characters except digits and decimals
     def stripNutrients(self, element):
         result = ''.join(c for c in element if c.isdigit() or c == '.')
-        if result == '':
-            # return a sentinel value since SQL cannot import None types correctly
-            return -1
-        else:
-            return result
+        # returns a None if the value does not exist else return the result
+        return 'NULL' if result == '' else result
 
-    # scrapes NU menu and inserts into separate csv files per table
+    # scrapes NU menu and inserts into food, menu, and food_on_menu tables in database
     def insertData(self, location, mealType, date):
         # gets the active tables
         activeTable = self.soup.find('div', class_=['tab-pane', 'show', 'fade', 'active'])
@@ -96,7 +114,7 @@ class Scraper():
                 itemName = row.findAll('strong')
                 if itemName:
                     # gets the food name
-                    foodName = itemName[0].text.strip()
+                    foodName = Utils().cleanName(itemName[0].text.strip())
                     # goes to the div with the image links
                     special = row.findAll('td')[1].div
                     src_links = []
@@ -104,11 +122,10 @@ class Scraper():
                     for image in special.findAll('img'):
                         # creates a list of image src links
                         src_links.append(image['src'])
-                        # assigns food qualities based on whether the image links are present for that food item
-                        # cast booleans to integers to store as 0 and 1 instead of True and False for importing to SQL
-                        vegetarian = int("/img/icon_vegetarian_200px.png" in src_links)
-                        vegan = int("/img/icon_vegan_200px.png" in src_links)
-                        balanced = int("/img/icon_balanced_200px.png" in src_links)
+                    # assigns food qualities based on whether the image links are present for that food item
+                    vegetarian = "/img/icon_vegetarian_200px.png" in src_links
+                    vegan = "/img/icon_vegan_200px.png" in src_links
+                    balanced = "/img/icon_balanced_200px.png" in src_links
                     # gets the serving sizes for each food item
                     serving = row.findAll('td')[2].div.text
                     # iterates through each food item
@@ -131,15 +148,19 @@ class Scraper():
                         transFat = self.stripNutrients(nutritionalListElements[10].text)
                         vitaminD = self.stripNutrients(nutritionalListElements[11].text)
 
-                    # writes to the csv file
+                    # writes to the database
                     newMenuAttributes = {'meal_type': mealType, 'location': location, 'menu_date': date}
                     # if this menu has not been recorded yet
                     if newMenuAttributes not in self.uniqueMenus:
                         self.menuID += 1
                         # add the combination of attributes to the list of dictionaries
                         self.uniqueMenus.append(newMenuAttributes)
-                        # write to the csv
-                        menu_csv_writer.writerow({'menu_id': self.menuID, 'meal_type': mealType, 'location': location, 'menu_date': date})
+
+                        # insert into menu table in database
+                        with engine.begin() as con:
+                            con.execute("INSERT INTO menu "
+                                        "(menu_id, meal_type, location, menu_date) "
+                                       f'VALUES ({self.menuID}, "{mealType}", "{location}", "{date}")')
 
                     existingFoodNames = [d.get('food_name', None) for d in self.uniqueFoods]
                     # if this food item has not been recorded yet
@@ -147,12 +168,18 @@ class Scraper():
                         self.foodID += 1
                         # add the combination of attributes to the list of dictionaries
                         self.uniqueFoods.append({'food_id': self.foodID, 'food_name': foodName})
-                        # write to the csv
-                        food_csv_writer.writerow({'food_id': self.foodID, 'food_name': foodName, 'serving': serving, 'calories': calories,
-                                                  'calories_from_fat': caloriesFromFat, 'cholesterol': cholesterol, 'dietary_fiber': dietaryFiber,
-                                                  'protein': protein, 'saturated_fat': saturatedFat, 'sodium': sodium, 'sugar': sugar,
-                                                  'total_carbs': totalCarbs, 'total_fat': totalFat, 'trans_fat': transFat,
-                                                  'vitamin_d': vitaminD, 'vegetarian': vegetarian, 'vegan': vegan, 'balanced': balanced})
+
+                        # insert into food table in database
+                        print(foodName)
+                        with engine.begin() as con:
+                            con.execute("INSERT INTO food "
+                                        "(food_id, food_name, serving, calories, calories_from_fat, "
+                                        "cholesterol, dietary_fiber, protein, saturated_fat, sodium, "
+                                        "sugar,total_carbs, total_fat, trans_fat, vitamin_d, vegetarian, "
+                                        "vegan, balanced) "
+                                       f'VALUES ({self.foodID}, "{foodName}", "{serving}", {calories}, {caloriesFromFat}, '
+                                       f'{cholesterol}, {dietaryFiber}, {protein}, {saturatedFat}, {sodium}, {sugar}, '
+                                       f'{totalCarbs}, {totalFat}, {transFat}, {vitaminD}, {vegetarian}, {vegan}, {balanced})')
 
                         # prints out all the scraped data
                         print('NEW', self.foodID, foodName, serving, calories, caloriesFromFat, cholesterol, dietaryFiber, protein, saturatedFat,
@@ -162,18 +189,27 @@ class Scraper():
                         newMenuFoodCombo = {'menu_id': self.menuID, 'food_id': self.foodID}
                         # add the combination of attributes to the list of dictionaries
                         self.uniqueMenuFoodCombo.append(newMenuFoodCombo)
-                        # write to the csv
-                        menu_food_csv_writer.writerow({'menu_id': self.menuID, 'food_id': self.foodID})
+
+                        # insert into food_on_menu table in database
+                        with engine.begin() as con:
+                            con.execute("INSERT INTO food_on_menu "
+                                        "(menu_id, food_id) "
+                                       f"VALUES ({self.menuID}, {self.foodID})")
                     # if this food item has already been recorded
                     else:
                         dict = self.uniqueFoods[existingFoodNames.index(foodName)]
                         print('EXISTS', foodName, dict, location, mealType, date)
                         # make a dictionary with the menuID and the foodID referencing the recorded food
                         newMenuFoodCombo = {'menu_id': self.menuID, 'food_id': dict['food_id']}
-                        # if this is a new combination then record in the csv
+                        # if this is a new combination then record in the database
                         if newMenuFoodCombo not in self.uniqueMenuFoodCombo:
                             self.uniqueMenuFoodCombo.append(newMenuFoodCombo)
-                            menu_food_csv_writer.writerow({'menu_id': self.menuID, 'food_id': dict['food_id']})
+
+                            # insert into food_on_menu table in database
+                            with engine.begin() as con:
+                                con.execute("INSERT INTO food_on_menu "
+                                            "(menu_id, food_id) "
+                                           f"VALUES ({self.menuID}, {dict['food_id']})")
 
     # waits for page to load within the given limit before scraping data
     def waitForTab(self, limit):
@@ -197,7 +233,7 @@ class Scraper():
         except Exception:
             pass
 
-    # scrapes NU menu and inserts into separate csv files per table
+    # scrapes NU menu and tries to iterate through each day and location of the menu
     def tryInserting(self, date):
         locations = ['Stwest', 'IV', 'Steast']
         mealTypes = ['Breakfast', 'Lunch', 'Dinner']
@@ -217,7 +253,7 @@ class Scraper():
                     tab.click()
                     self.soup = BeautifulSoup(self.browser.page_source, 'lxml')
                     self.insertData(location, tabName, date)
-                except Exception:
+                except NoSuchElementException:
                     print(f"Couldn't find {tabName} for {location} on {date}")
 
     # scrape all the data from the website
@@ -229,59 +265,23 @@ class Scraper():
         monthNum = list(calendar.month_name).index(month)
         year = int(datetime.now().strftime('%Y'))
         fullDate = dt.datetime(year, monthNum, int(date))
-        # stop scraping on May 5th
-        finalDate = dt.datetime(year, 5, 5)
-        while(fullDate != finalDate):
+        # stop scraping after a week
+        days = 0
+        while(days != 7):
             for day in dayButtons:
-                if (fullDate != finalDate):
+                if (days != 7):
                     shortDate = fullDate.strftime('%Y-%m-%d')
                     day.click()
                     self.waitForTab(3)
                     self.tryInserting(shortDate)
                     # increment the date by 1 day
                     fullDate += dt.timedelta(days=1)
+                    days += 1
                 else:
                     break
             nextButton.click()
 
 
-# CSV FILE
-# file names
-foodDataFile = 'food.csv'
-menuDataFile = 'menu.csv'
-jointMenuFoodFile = 'food_on_menu.csv'
-
-# if the files existed before
-foodDataExists = os.path.isfile(foodDataFile)
-menuDataExists = os.path.isfile(menuDataFile)
-menuFoodDataExists = os.path.isfile(jointMenuFoodFile)
-
-with open(foodDataFile, 'a', encoding='utf-8') as food_csv_file, open(menuDataFile, 'a', encoding='utf-8') as menu_csv_file, open(jointMenuFoodFile, 'a', encoding='utf-8') as menu_food_csv_file:
-    # food table
-    fieldnames = ['food_id', 'food_name', 'serving', 'calories', 'calories_from_fat',
-                  'cholesterol', 'dietary_fiber', 'protein', 'saturated_fat',
-                  'sodium', 'sugar', 'total_carbs', 'total_fat', 'trans_fat',
-                  'vitamin_d', 'vegetarian', 'vegan', 'balanced']
-    food_csv_writer = csv.DictWriter(food_csv_file, fieldnames=fieldnames)
-    # if the file does not already exist add the headers
-    if not foodDataExists:
-        food_csv_writer.writeheader()
-
-    # menu table
-    fieldnames = ['menu_id', 'meal_type', 'location', 'menu_date']
-    menu_csv_writer = csv.DictWriter(menu_csv_file, fieldnames=fieldnames)
-    # if the file does not already exist add the headers
-    if not menuDataExists:
-        menu_csv_writer.writeheader()
-
-    # food_on_menu table
-    fieldnames = ['menu_id', 'food_id']
-    menu_food_csv_writer = csv.DictWriter(menu_food_csv_file, fieldnames=fieldnames)
-    # if the file does not already exist add the headers
-    if not menuFoodDataExists:
-        menu_food_csv_writer.writeheader()
-
-    menu = Scraper(browser, soup)  # scraper object
-
-    # initiate the scraping of all data
-    menu.scrapeAll()
+scraper = Scraper(browser, soup)  # scraper object
+# initiate the scraping of all data
+scraper.scrapeAll()
