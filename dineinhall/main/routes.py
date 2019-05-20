@@ -69,15 +69,17 @@ def search():
         foodName = form.foodName.data.split()
         # rating on a 5pt scale
         rating = form.rating.data
+        # boolean values for food properties
+        vegetarian = form.vegetarian.data
+        vegan = form.vegan.data
+        balanced = form.balanced.data
         foodNameQuery = "true "
         # for each word in the searched food find a food item that contains the given word
         for word in foodName:
             foodNameQuery += f"and food_name like '%%{word}%%' "
         # if user does not choose any location, shows all by default
         if not(iv or steast or stwest):
-            iv = True
-            steast = True
-            stwest = True
+            iv, steast, stwest = True, True, True
         # foods from dining hall locations
         iv = "location like 'IV'" if iv else False
         steast = "location like 'Steast'" if steast else False
@@ -92,6 +94,9 @@ def search():
         carbs = f"total_carbs <= {carbs}" if carbs is not None else True
         # foods with ratings greater than or equal to the given rating (including not yet rated)
         rating = f"(ratings >= {rating} or isnull(ratings))" if rating is not None else True
+        vegetarian = "vegetarian = True" if vegetarian else True
+        vegan = "vegan = True" if vegan else True
+        balanced = "balanced = True" if balanced else True
         # set a timezone to avoid the inconsistent timezone of the Heroku server
         curdate = datetime.now(timezone('US/Eastern'))  # EST timezone
         curdate = curdate.strftime("%Y-%m-%d")
@@ -108,6 +113,7 @@ def search():
                                 f"and meal_type like '{meal}' "
                                 f"and {rating} "
                                 f"and {foodNameQuery} "
+                                f"and {vegetarian} and {vegan} and {balanced} "
                                 f"order by location desc, meal_type asc, calories desc, food_name desc")
         foods = list(foods)
         size = len(foods)

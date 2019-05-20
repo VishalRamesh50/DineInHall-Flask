@@ -20,7 +20,7 @@ except Exception:
 # allows us to recreate SQL query statements in Python
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
-browser = webdriver.Chrome('/chromedriver')
+browser = webdriver.Chrome('/Users/vishalramesh/Documents/Coding/DineInHall/scraping/chromedriver')
 browser.get('https://new.dineoncampus.com/Northeastern/menus')
 time.sleep(5)  # wait for page to render javascript
 soup = BeautifulSoup(browser.page_source, 'lxml')
@@ -170,7 +170,6 @@ class Scraper():
                         self.uniqueFoods.append({'food_id': self.foodID, 'food_name': foodName})
 
                         # insert into food table in database
-                        print(foodName)
                         with engine.begin() as con:
                             con.execute("INSERT INTO food "
                                         "(food_id, food_name, serving, calories, calories_from_fat, "

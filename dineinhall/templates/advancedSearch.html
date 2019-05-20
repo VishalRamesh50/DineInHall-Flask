@@ -95,6 +95,19 @@
                 {{ form.meal.label(class="form-control-label") }}
                 {{ form.meal(class="form-control form-control") }}
               </div>
+              <div class="form-check">
+                {{ form.vegetarian(class="form-check-input") }}
+                {{ form.vegetarian.label(class="form-check-label") }}
+              </div>
+              <div class="form-check">
+                {{ form.vegan(class="form-check-input") }}
+                {{ form.vegan.label(class="form-check-label") }}
+              </div>
+              <div class="form-check">
+                {{ form.balanced(class="form-check-input") }}
+                {{ form.balanced.label(class="form-check-label") }}
+              </div>
+              <br>
               <div class="form-group">
                 {{ form.calories.label(class="form-control-label") }} <i><small>(max.)</small></i>
                 {% if form.calories.errors %}
