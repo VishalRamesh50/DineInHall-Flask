@@ -45,8 +45,8 @@ class Utils():
     def fetchLastField(self, field):
         with engine.connect() as con:
             rs = con.execute(f'select distinct {field} '
-                              'from menu join food_on_menu using (menu_id) '
-                              'join food using (food_id) '
+                              'from food left join food_on_menu using (food_id) '
+                              'left join menu using (menu_id)'
                              f'order by {field} desc '
                               'limit 1')
         # returns the first item in the row
@@ -60,8 +60,8 @@ class Utils():
         final_list = []
         with engine.connect() as con:
             rs = con.execute(f'select distinct * '
-                              'from menu join food_on_menu using (menu_id) '
-                              'join food using (food_id)')
+                              'from food left join food_on_menu using (food_id) '
+                              'left join menu using (menu_id)')
             # for each row in the result
             for row in rs:
                 dict = {}
@@ -75,7 +75,7 @@ class Utils():
 
     def cleanName(self, foodName):
         foodName = foodName.replace("%", r"%%")
-        foodName = foodName.replace('"', r"'")
+        foodName = foodName.replace('"', r"\"")
         return foodName
 
 
@@ -89,6 +89,7 @@ class Scraper():
         self.menuID = Utils().fetchLastField('menu_id')
         # list of dictionary combinations of food ids and their associated names
         self.uniqueFoods = Utils().createCombinations('food_id', 'food_name')
+        print(self.uniqueFoods)
         # list of dictionary combinations of unique menu data
         self.uniqueMenus = Utils().createCombinations('meal_type', 'location', 'menu_date')
         # list of dictionary pairs of menu ids and food ids
@@ -114,7 +115,7 @@ class Scraper():
                 itemName = row.findAll('strong')
                 if itemName:
                     # gets the food name
-                    foodName = Utils().cleanName(itemName[0].text.strip())
+                    foodName = itemName[0].text.strip()
                     # goes to the div with the image links
                     special = row.findAll('td')[1].div
                     src_links = []
@@ -169,6 +170,7 @@ class Scraper():
                         # add the combination of attributes to the list of dictionaries
                         self.uniqueFoods.append({'food_id': self.foodID, 'food_name': foodName})
 
+                        foodName = Utils().cleanName(foodName)
                         # insert into food table in database
                         with engine.begin() as con:
                             con.execute("INSERT INTO food "
