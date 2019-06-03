@@ -89,7 +89,6 @@ class Scraper():
         self.menuID = Utils().fetchLastField('menu_id')
         # list of dictionary combinations of food ids and their associated names
         self.uniqueFoods = Utils().createCombinations('food_id', 'food_name')
-        print(self.uniqueFoods)
         # list of dictionary combinations of unique menu data
         self.uniqueMenus = Utils().createCombinations('meal_type', 'location', 'menu_date')
         # list of dictionary pairs of menu ids and food ids
