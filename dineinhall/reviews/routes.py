@@ -60,7 +60,7 @@ def foodReview(food_id):
         reviews = con.execute("select * "
                               f"from food join rating using (food_id) "
                               f"join user using (user_id) "
-                              f"where not isnull(description) and {food_id} "
+                              f"where not isnull(rating.description) and {food_id} "
                               f"order by timestamp desc")
     reviews = list(reviews)
     size = len(reviews)
