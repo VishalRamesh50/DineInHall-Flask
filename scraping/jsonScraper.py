@@ -57,7 +57,8 @@ class Utils():
                     final_list.append(dict)
         return final_list
 
-    def cleanFoodName(self, foodName):
+    def cleanStringNames(self, foodName):
+        foodName.strip()
         # replace % with %% to insert into SQL queries
         foodName = foodName.replace("%", r"%%")
         # escape apostrophes to insert into SQL queries
@@ -211,7 +212,8 @@ class Scraper():
         if (len(self.newFoods) > 0):
             foodValues = ""
             for foodDict in self.newFoods:
-                foodName = Utils().cleanFoodName(foodDict['food_name'])
+                foodName = Utils().cleanStringNames(foodDict['food_name'])
+                description = Utils().cleanStringNames(foodDict['description'])
                 foodValues += (f'({foodDict["food_id"]}, "{foodName}", '
                                f'"{foodDict["serving"]}", {foodDict["calories"]}, '
                                f'{foodDict["calories_from_fat"]}, {foodDict["cholesterol"]}, '
@@ -221,7 +223,7 @@ class Scraper():
                                f'{foodDict["total_fat"]}, {foodDict["trans_fat"]}, '
                                f'{foodDict["vitamin_d"]}, {foodDict["vegetarian"]}, '
                                f'{foodDict["vegan"]}, {foodDict["balanced"]}, '
-                               f'{foodDict["description"]}), \n')
+                               f'"{description}"), \n')
             foodValues = foodValues[:-3]
             with engine.begin() as con:
                 con.execute("INSERT INTO food "
