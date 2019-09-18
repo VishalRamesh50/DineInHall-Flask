@@ -117,10 +117,9 @@ class Scraper():
             if data['status'] == 'success':
                 menu = data['menu']  # type: dict
 
-                mealTypes = ['breakfast', 'lunch', 'dinner']
                 # for each meal type (breakfast, lunch, dinner)
-                for i, period in enumerate(menu['periods']):
-                    mealType = mealTypes[i]  # meal type
+                for period in menu['periods']:
+                    mealType = period['name']  # meal type
                     # for each category of the period
                     for category in period['categories']:
                         # categoryName = category['name']
