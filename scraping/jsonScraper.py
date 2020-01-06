@@ -213,16 +213,17 @@ class Scraper():
             for foodDict in self.newFoods:
                 foodName = Utils().cleanStringNames(foodDict['food_name'])
                 description = Utils().cleanStringNames(foodDict['description'])
+                serving = Utils().cleanStringNames(foodDict['serving'])
                 foodValues += (f'({foodDict["food_id"]}, "{foodName}", '
-                               f'"{foodDict["serving"]}", {foodDict["calories"]}, '
-                               f'{foodDict["calories_from_fat"]}, {foodDict["cholesterol"]}, '
-                               f'{foodDict["dietary_fiber"]}, {foodDict["protein"]}, '
-                               f'{foodDict["saturated_fat"]}, {foodDict["sodium"]}, '
-                               f'{foodDict["sugar"]}, {foodDict["total_carbs"]}, '
-                               f'{foodDict["total_fat"]}, {foodDict["trans_fat"]}, '
-                               f'{foodDict["vitamin_d"]}, {foodDict["vegetarian"]}, '
-                               f'{foodDict["vegan"]}, {foodDict["balanced"]}, '
-                               f'"{description}"), \n')
+                            f'"{serving}", {foodDict["calories"]}, '
+                            f'{foodDict["calories_from_fat"]}, {foodDict["cholesterol"]}, '
+                            f'{foodDict["dietary_fiber"]}, {foodDict["protein"]}, '
+                            f'{foodDict["saturated_fat"]}, {foodDict["sodium"]}, '
+                            f'{foodDict["sugar"]}, {foodDict["total_carbs"]}, '
+                            f'{foodDict["total_fat"]}, {foodDict["trans_fat"]}, '
+                            f'{foodDict["vitamin_d"]}, {foodDict["vegetarian"]}, '
+                            f'{foodDict["vegan"]}, {foodDict["balanced"]}, '
+                            f'"{description}"), \n')
             foodValues = foodValues[:-3]
             with engine.begin() as con:
                 con.execute("INSERT INTO food "
