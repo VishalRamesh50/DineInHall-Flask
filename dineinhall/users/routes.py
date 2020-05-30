@@ -1,21 +1,17 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint
-from sqlalchemy import create_engine
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy import create_engine
+
 from dineinhall import db, bcrypt
+from dineinhall.config import Config
 from dineinhall.models import User
-from dineinhall.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
-                                    RequestResetForm, ResetPasswordForm)
+from dineinhall.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm)
 from dineinhall.users.utils import save_picture, send_reset_email
-import os
-try:
-    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]  # URI from Heroku
-except Exception:
-    from ..creds import SQLALCHEMY_DATABASE_URI  # local URI
 
 users = Blueprint('users', __name__)
 
 # allows us to recreate SQL query statements in Python
-engine = create_engine(SQLALCHEMY_DATABASE_URI)
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 
 # register page where the new users can register for an account given the right validated credentials

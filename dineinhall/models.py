@@ -1,11 +1,8 @@
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
+from .config import Config
 from dineinhall import db, login_manager
 from flask_login import UserMixin
-import os
-try:
-    from .creds import SECRET_KEY
-except Exception:
-    SECRET_KEY = os.environ['SECRET_KEY']
 
 
 # This file is used to create table models for SQLAlchemy.
@@ -30,13 +27,13 @@ class User(db.Model, UserMixin):
 
     # generate random token which expires in 30 mins
     def get_reset_token(self, expires_sec=1800):
-        s = Serializer(SECRET_KEY, expires_sec)
+        s = Serializer(Config.SECRET_KEY, expires_sec)
         return s.dumps({'user_id': self.user_id}).decode('utf-8')
 
     # method to verify the user's reset token
     @staticmethod
     def verify_reset_token(token):
-        s = Serializer(SECRET_KEY)
+        s = Serializer(Config.SECRET_KEY)
         try:
             user_id = s.loads(token)['user_id']
         except Exception:

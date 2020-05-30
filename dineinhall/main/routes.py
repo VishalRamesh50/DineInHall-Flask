@@ -1,18 +1,15 @@
-from flask import render_template, Blueprint, redirect, url_for, flash
-from sqlalchemy import create_engine
 from datetime import datetime
+from flask import render_template, Blueprint, redirect, url_for, flash
 from pytz import timezone
+from sqlalchemy import create_engine
+
 from .forms import SearchForm
-import os
-try:
-    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]  # URI from Heroku
-except Exception:
-    from ..creds import SQLALCHEMY_DATABASE_URI  # local URI
+from dineinhall.config import Config
 
 main = Blueprint('main', __name__)
 
 # allows us to recreate SQL query statements in Python
-engine = create_engine(SQLALCHEMY_DATABASE_URI)
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 
 # routes the user to the home page

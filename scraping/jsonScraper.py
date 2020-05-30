@@ -6,16 +6,13 @@ import json
 import urllib.request
 import os
 import sys
+from dineinhall.config import Config
 
 # give access to the parent directory to run independently
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'dineinhall'))
-try:
-    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]  # URI from Heroku
-except Exception:
-    from creds import SQLALCHEMY_DATABASE_URI  # local URI
 
 # allows us to recreate SQL query statements in Python
-engine = create_engine(SQLALCHEMY_DATABASE_URI)
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 
 class Utils():
