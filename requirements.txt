@@ -8,3 +8,4 @@ flask-mail
 pymysql
 gunicorn
 pytz
+python-dotenv
