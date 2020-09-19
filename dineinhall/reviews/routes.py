@@ -64,7 +64,7 @@ def foodReview(food_id):
 
     # if there are no reviews for the given food id
     if size == 0:
-        flash('No reviews for this food item', 'danger')
+        flash('No reviews found', 'danger')
     else:
         flash(f'Found {size} reviews!', 'success')
     return render_template('reviews.html', title='Ratings', reviews=reviews)
